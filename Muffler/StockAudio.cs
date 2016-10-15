@@ -14,7 +14,7 @@ namespace AudioMuffler {
 		private static List<string> PRESERVED = new List<string> {"MusicLogic"};
 		
 		public static bool isAmbient(AudioSource audioSource) {
-			return AMBIENT.Contains(audioSource.name);
+			return AMBIENT.Contains(audioSource.name) || audioSource.name.StartsWith("Explosion");
 		}
 		
 		public static bool isPreserved(AudioSource audioSource) {
