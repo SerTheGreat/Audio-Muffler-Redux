@@ -77,8 +77,9 @@ namespace AudioMuffler {
 	        //Looking for a part containing the Ear:
 	        Part earPart = null;
 	        for (int i = 0; i < meshToPartList.Count && earPart == null; i++) {
-	        	if (isPointInMesh(earPosition, meshToPartList[i].meshFilter)) {
-	        		earPart = meshToPartList[i].part;
+				MeshToPart meshToPart = meshToPartList[i];
+	        	if (isPointInMesh(earPosition, meshToPart.meshFilter)) {
+	        		earPart = meshToPart.part;
 	         	}
 	        }
 
@@ -161,6 +162,9 @@ namespace AudioMuffler {
 		}
 	    
 	    private bool isPointInMesh(Vector3 point, MeshFilter meshFilter) {
+			if (meshFilter == null) {
+				return false;
+			}
 			Vector3 localPoint;
 			Bounds bounds;
 			if (FlightGlobals.ActiveVessel.isEVA) { //Some strange coordinates are used when in EVA mode
@@ -168,7 +172,7 @@ namespace AudioMuffler {
 				//localPoint = meshFilter.transform.InverseTransformPoint(point); //this is the JetPack transform
 				bounds = new Bounds(new Vector3(0.0f, 0.0f, -0.3f), new Vector3(1.2f, 1.2f, 1.6f)); //Artificial EVA bounds (they are always the same)
 			} else {
-				localPoint = meshFilter.transform.InverseTransformPoint(point); 
+				localPoint = meshFilter.transform.InverseTransformPoint(point);
 				bounds = meshFilter.mesh.bounds;
 			}
 			return bounds.Contains(localPoint);
