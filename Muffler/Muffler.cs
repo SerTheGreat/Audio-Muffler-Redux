@@ -113,7 +113,7 @@ namespace AudioMuffler {
 				writeDebug("Sound " + i + ":" + audioSource.transform.name + " " + audioSource.transform.position + " " + audioSource.bypassEffects + " " + audioSource.bypassListenerEffects + " " + 
 	        	             (audioSource.clip == null ? "null" : audioSource.clip.name) + " " + StockAudio.isAmbient(audioSource));
 	        	
-				if (/*audioSource.bypassEffects ||*/ StockAudio.isPreserved(audioSource)) {
+				if (/*audioSource.bypassEffects ||*/ StockAudio.isPreserved(audioSource) || (audioSource.clip == null) && !audioSource.isPlaying) {
 	        		continue;
 	        	}
 
