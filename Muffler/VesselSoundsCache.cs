@@ -14,43 +14,36 @@ namespace AudioMuffler
 	{
 		
 		private Dictionary<int, Part> soundIDToPart = new Dictionary<int, Part>(); //id is used to not mess with weak references to audio sources
-		private int previousPartCount = int.MaxValue;
-		private Stopwatch stopWatch = new Stopwatch();
+		private Dictionary<int, Part> soundIDToPartIVA = new Dictionary<int, Part>(); //using a separate storage for internal model audio sources as they have completely different reference system
 
-		public void rebuildCacheWith(AudioSource[] audioSources) {
-			rebuildCacheWith(audioSources, 0);
-		}
-		
-		public void rebuildCacheWith(AudioSource[] audioSources, int minInterval) {
-			Stopwatch sw = Stopwatch.StartNew();
-
-			if ((stopWatch.ElapsedMilliseconds < minInterval) && (FlightGlobals.ActiveVessel.Parts.Count < previousPartCount)) {
-				return;
-			}
-			previousPartCount = FlightGlobals.ActiveVessel.Parts.Count;
-
-			stopWatch.Stop();
-			stopWatch.Reset();
+		public void rebuildCache(AudioSource[] audioSources) {
+			Stopwatch performanceWatch = Stopwatch.StartNew();
 
 			soundIDToPart.Clear();
+			soundIDToPartIVA.Clear();
 			for (int i = 0; i < audioSources.Length; i++) {
 				AudioSource audioSource = audioSources[i];
 				for (int p = 0; p < FlightGlobals.ActiveVessel.Parts.Count; p++) {
 					Part part = FlightGlobals.ActiveVessel.Parts[p];
-					if (part.transform.Equals(audioSource.transform)) {
+					if (part.internalModel && part.internalModel.transform.Equals(audioSource.transform.parent)) {
+						soundIDToPartIVA.Add(audioSource.GetInstanceID(), part);
+					} else if (part.transform.Equals(audioSource.transform)) {
 						soundIDToPart.Add(audioSource.GetInstanceID(), part);
 					}
 				}
 			}
-			stopWatch.Start();
-
-			sw.Stop();
-			KSPLog.print("AudioMuffler: VesselSoundsCache rebuild time = " + sw.ElapsedMilliseconds);
+			performanceWatch.Stop();
+			KSPLog.print("AudioMuffler: VesselSoundsCache rebuild time = " + performanceWatch.ElapsedMilliseconds);
 		}
 		
 		public Part getPartFor(AudioSource audioSource) {
 			Part part;
 			return soundIDToPart.TryGetValue(audioSource.GetInstanceID(), out part) ? part : null;
+		}
+
+		public Part getPartForIVA(AudioSource audioSource) {
+			Part part;
+			return soundIDToPartIVA.TryGetValue(audioSource.GetInstanceID(), out part) ? part : null;
 		}
 		
 	}

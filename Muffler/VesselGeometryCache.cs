@@ -10,9 +10,7 @@ namespace AudioMuffler
 		private Bounds EVA_BOUNDS = new Bounds(new Vector3(0.0f, 0.3f, 0.0f), new Vector3(1.2f, 1.6f, 1.2f)); //Artificial EVA bounds (they are always the same)
 
 		//private Bounds vesselBounds = new Bounds();	//active vessel's bounds relative to vesselTransform. This should be checked prior to iterating through part meshes to improve efficiency
-		private Transform vesselTransform = null;
-		private int previousPartCount = int.MaxValue;
-		private Stopwatch stopWatch = new Stopwatch();
+		//private Transform vesselTransform = null;
 
 		public Dictionary<Part, List<MeshFilter>> partMeshes { get; set;}
 
@@ -21,27 +19,12 @@ namespace AudioMuffler
 		}
 
 		public void rebuildCache() {
-			rebuildCache(0);
-		}
-
-		public void rebuildCache(int minInterval) {
-			Stopwatch sw = Stopwatch.StartNew();
-
-			//If active vessel wasn't changed and part count reduced then we should control frequency of cache rebuilds because 
-			//on high part count vessel crash a wave of events occur causing very frequent rebuilds which may lead to serious lags.
-			//Part count increases and vessel changes aren't expected to happen so frequent, so there's no need to control interval.
-			if ((stopWatch.ElapsedMilliseconds < minInterval) && (FlightGlobals.ActiveVessel.Parts.Count < previousPartCount)) {
-				return;
-			}
-			previousPartCount = FlightGlobals.ActiveVessel.Parts.Count;
-
-			stopWatch.Stop();
-			stopWatch.Reset();
+			Stopwatch performanceWatch = Stopwatch.StartNew();
 
 			partMeshes.Clear();
 			Vector3 min = Vector3.zero;
 			Vector3 max = Vector3.zero;
-			vesselTransform = FlightGlobals.ActiveVessel.vesselTransform;
+			//vesselTransform = FlightGlobals.ActiveVessel.vesselTransform;
 			/*if (FlightGlobals.ActiveVessel.isEVA) {
 				vesselBounds = EVA_BOUNDS;
 			}*/
@@ -75,10 +58,9 @@ namespace AudioMuffler
 			/*if (!FlightGlobals.ActiveVessel.isEVA) {
 				vesselBounds.SetMinMax(min, max);
 			}*/
-			stopWatch.Start();
 
-			sw.Stop();
-			KSPLog.print("AudioMuffler: VesselGeometryCache rebuild time = " + sw.ElapsedMilliseconds);
+			performanceWatch.Stop();
+			KSPLog.print("AudioMuffler: VesselGeometryCache rebuild time = " + performanceWatch.ElapsedMilliseconds);
 		}
 
 		/*public bool isPointInVesselBounds(Vector3 point) {

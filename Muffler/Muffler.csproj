@@ -61,6 +61,8 @@
     <Compile Include="StockAudio.cs" />
     <Compile Include="VesselSoundsCache.cs" />
     <Compile Include="VesselGeometryCache.cs" />
+    <Compile Include="DebugVisualizer.cs" />
+    <Compile Include="VesselCacheManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
