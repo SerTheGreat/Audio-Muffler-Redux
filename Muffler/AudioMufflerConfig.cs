@@ -20,6 +20,7 @@ namespace AudioMuffler
 		public bool helmetOutsideIVA {get; set;}
 		public bool helmetOutsideEVA {get; set;}
 		public bool helmetInMapView {get; set;}
+		public bool helmetForUnmanned { get; set;}
 		public bool vesselInMapView {get; set;}
 		public bool outsideInMapView {get; set;}
 		
@@ -36,6 +37,7 @@ namespace AudioMuffler
 			config.minimalCutoff = float.Parse(node.GetValue("minimalCutoff"));
 			config.helmetOutsideIVA = bool.Parse(node.GetValue("helmetOutsideIVA"));
 			config.helmetOutsideEVA = bool.Parse(node.GetValue("helmetOutsideEVA"));
+			config.helmetForUnmanned = bool.Parse(node.GetValue("helmetOutsideEVA"));
 			config.helmetInMapView = bool.Parse(node.GetValue("helmetInMapView"));
 			config.vesselInMapView = bool.Parse(node.GetValue("vesselInMapView"));
 			config.outsideInMapView = bool.Parse(node.GetValue("outsideInMapView"));
