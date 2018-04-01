@@ -27,8 +27,16 @@ namespace AudioMuffler {
 			audioMixer.SetFloat("OutsideVolume", mute ? -80 : 0);
 		}
 
+		public void setInVesselVolume(float volume) {
+			audioMixer.SetFloat("InVesselVolume", volume);
+		}
+
 		public void setInVesselCutoff(float cutoff) {
 			audioMixer.SetFloat("InVesselCutoff", cutoff);
+		}
+
+		public void setOutsideVolume(float volume) {
+			audioMixer.SetFloat("OutsideVolume", volume);
 		}
 		
 		public void setOutsideCutoff(float cutoff) {
