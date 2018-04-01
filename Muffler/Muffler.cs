@@ -2,6 +2,8 @@
 using UnityEngine;
 
 namespace AudioMuffler {
+
+	//TODO optimize string comparisons
 	
 	[KSPAddon(KSPAddon.Startup.Flight, false)]
 	public class Muffler : MonoBehaviour
