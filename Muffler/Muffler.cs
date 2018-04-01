@@ -116,21 +116,21 @@ namespace AudioMuffler {
 					writeDebug("Sound " + i + ": " + audioSource.transform.name + " " + audioSource.transform.position + " " + audioSource.bypassEffects + " " + audioSource.bypassListenerEffects + " " +
 					(audioSource.clip == null ? "null" : audioSource.clip.name) + " " + StockAudio.isAmbient(audioSource) + " " + StockAudio.isInVessel(audioSource));
 				}
+
+				//This "if" is here because of strange behaviour of StageManager's audio source which always has clip = null and !playing when checked
+				if (StockAudio.isInVessel(audioSource)) { 
+					writeDebug("Sound " + i + ":" + audioSource.name + " IN VESSEL");
+					audioSource.outputAudioMixerGroup = earPart != null ? audioMixer.inVesselGroup : audioMixer.outsideGroup;
+					continue;
+				}
 	        	
-				if (/*audioSource.bypassEffects ||*/ StockAudio.isPreserved(audioSource)) {// || (audioSource.clip == null) || (!audioSource.isPlaying)) {
+				if (/*audioSource.bypassEffects ||*/ StockAudio.isPreserved(audioSource) || (audioSource.clip == null) || (!audioSource.isPlaying)) {
 	        		continue;
 	        	}
 
 				if (StockAudio.isAmbient(audioSource)) {
 					writeDebug("Sound " + i + ":" + audioSource.name + " OUTSIDE");
 					audioSource.outputAudioMixerGroup = audioMixer.outsideGroup;
-					continue;
-				}
-
-				if (StockAudio.isInVessel(audioSource)) {
-					writeDebug("Sound " + i + ":" + audioSource.name + " IN VESSEL");
-					audioSource.outputAudioMixerGroup = earPart != null ? audioMixer.inVesselGroup : audioMixer.outsideGroup;
-					writeDebug("#####");
 					continue;
 				}
 
