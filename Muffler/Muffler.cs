@@ -2,6 +2,8 @@
 using UnityEngine;
 
 namespace AudioMuffler {
+
+	//TODO optimize string comparisons
 	
 	[KSPAddon(KSPAddon.Startup.Flight, false)]
 	public class Muffler : MonoBehaviour
@@ -44,7 +46,7 @@ namespace AudioMuffler {
 	    	}
 	    }
 
-	    void Update()
+	    void LateUpdate()
 	    {
 	        if (!config.engageMuffler)
 	            return;
@@ -83,6 +85,18 @@ namespace AudioMuffler {
 				|| !FlightGlobals.ActiveVessel.isEVA && !unmanned && !config.helmetOutsideIVA && !(CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA)
 				|| !config.helmetForUnmanned && unmanned;
 			
+			//Setting up outside channel:
+			float atmosphericCutoff = Mathf.Lerp(config.minimalCutoff, 30000, (float)FlightGlobals.ActiveVessel.atmDensity);
+			if (earPart != null) {
+				audioMixer.setOutsideCutoff(Mathf.Min(config.wallCutoff, atmosphericCutoff));
+				audioMixer.setInVesselVolume(-2f);
+				audioMixer.setOutsideVolume(-12f);
+			} else {
+				audioMixer.setOutsideCutoff(atmosphericCutoff);
+				audioMixer.setInVesselVolume(0f);
+				audioMixer.setOutsideVolume(0f);
+			}
+
 			//Handling Map view settings:
 			bool isMapView = CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Map;
 			muteHelmet = muteHelmet	|| !config.helmetInMapView && isMapView;
@@ -90,14 +104,6 @@ namespace AudioMuffler {
 			audioMixer.muteHelmet(muteHelmet);
 			audioMixer.muteInVessel(!config.vesselInMapView && isMapView);
 			audioMixer.muteOutside(!config.outsideInMapView && isMapView);
-
-			//Setting up outside channel:
-			float atmosphericCutoff = Mathf.Lerp(config.minimalCutoff, 30000, (float)FlightGlobals.ActiveVessel.atmDensity);
-			if (earPart != null) {
-				audioMixer.setOutsideCutoff(Mathf.Min(config.wallCutoff, atmosphericCutoff));
-			} else {
-				audioMixer.setOutsideCutoff(atmosphericCutoff);
-			}
 
 			//Routing all current audio sources:
 	        for (int i = 0; i < audioSources.Length; i++) {
@@ -108,10 +114,19 @@ namespace AudioMuffler {
 					so these two systems shouldn't be mixed until the way to convert coordinates between them is found
 				*/
 
-				writeDebug("Sound " + i + ":" + audioSource.transform.name + " " + audioSource.transform.position + " " + audioSource.bypassEffects + " " + audioSource.bypassListenerEffects + " " + 
-					(audioSource.clip == null ? "null" : audioSource.clip.name) + " " + StockAudio.isAmbient(audioSource));
+				if (config.debug) {
+					writeDebug("Sound " + i + ": " + audioSource.transform.name + " " + audioSource.transform.position + " " + audioSource.bypassEffects + " " + audioSource.bypassListenerEffects + " " +
+					(audioSource.clip == null ? "null" : audioSource.clip.name) + " " + StockAudio.isAmbient(audioSource) + " " + StockAudio.isInVessel(audioSource));
+				}
+
+				//This "if" is here because of strange behaviour of StageManager's audio source which always has clip = null and !playing when checked
+				if (StockAudio.isInVessel(audioSource)) { 
+					writeDebug("Sound " + i + ":" + audioSource.name + " IN VESSEL");
+					audioSource.outputAudioMixerGroup = earPart != null ? audioMixer.inVesselGroup : audioMixer.outsideGroup;
+					continue;
+				}
 	        	
-				if (/*audioSource.bypassEffects ||*/ StockAudio.isPreserved(audioSource) || (audioSource.clip == null) && !audioSource.isPlaying) {
+				if (/*audioSource.bypassEffects ||*/ StockAudio.isPreserved(audioSource) || (audioSource.clip == null) || (!audioSource.isPlaying)) {
 	        		continue;
 	        	}
 
@@ -198,7 +213,7 @@ namespace AudioMuffler {
 
 		private void writeDebug(string message) {
 			if (config.debug) {
-				KSPLog.print("Audio Muffler:" + message);
+				KSPLog.print("[Audio Muffler] " + message);
 			}
 		}
 
