@@ -25,13 +25,16 @@ namespace AudioMuffler
 				AudioSource audioSource = audioSources[i];
 				for (int p = 0; p < FlightGlobals.ActiveVessel.Parts.Count; p++) {
 					Part part = FlightGlobals.ActiveVessel.Parts[p];
-					if (part.internalModel && part.internalModel.transform.Equals(audioSource.transform.parent)) {
+					if (part.internalModel && audioSource.transform.IsChildOf(part.internalModel.transform)) {
 						soundIDToPartIVA.Add(audioSource.GetInstanceID(), part);
-					} else if (part.transform.Equals(audioSource.transform)) {
+					} else if (audioSource.transform.IsChildOf(part.transform)) {						
 						soundIDToPart.Add(audioSource.GetInstanceID(), part);
 					}
 				}
 			}
+			/*foreach (KeyValuePair<int, Part> entry in soundIDToPart) {
+				UnityEngine.Debug.Log("ENTRY: " + entry.Key + " " + entry.Value.name);
+			}*/
 			performanceWatch.Stop();
 			KSPLog.print("AudioMuffler: VesselSoundsCache rebuild time = " + performanceWatch.ElapsedMilliseconds);
 		}

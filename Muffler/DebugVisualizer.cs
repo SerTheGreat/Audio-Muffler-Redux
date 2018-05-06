@@ -39,69 +39,80 @@ namespace AudioMuffler
 			material.SetInt("_ZTest", 0);
 		}
 
-		public static void drawPartMeshes(Color color, Boolean internalModelCoords) {
+		private static Vector3 CT(Vector3 vector, bool asInternal = false) {
+			if (1 == 1)
+				return vector;
+			if (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal) {
+				if (asInternal) {
+					return vector;
+				}
+				return InternalSpace.WorldToInternal(vector);
+			}
+			return vector;
+		}
+
+		public static void drawPartMeshes(Color color) {
 			initializeMaterial();
 			material.SetPass(0);
+			GL.PushMatrix();
+			GL.Begin(GL.LINES);
+			GL.Color(color);
 			for (int i = 0; i < FlightGlobals.ActiveVessel.Parts.Count; i++) {
 				Part part = FlightGlobals.ActiveVessel.Parts[i];
 				List<MeshFilter> filters = part.FindModelComponents<MeshFilter>();
-				//MeshFilter[] filters = part.internalModel.FindModelComponents<MeshFilter>();
 				foreach (MeshFilter filter in filters) {
-					GL.PushMatrix();
-					//GL.MultMatrix(filter.transform.localToWorldMatrix);
-					GL.MultMatrix(internalModelCoords ? part.internalModel.transform.localToWorldMatrix : part.transform.localToWorldMatrix);
+					//GL.MultMatrix(internalModelCoords ? currentCamera.transform.parent.localToWorldMatrix : filter.transform.localToWorldMatrix);
 					//GL.LoadOrtho();
-					GL.Begin(GL.LINES);
-					GL.Color(color);
 
 					Vector3 center = filter.mesh.bounds.center;
 					Vector3 extents = filter.mesh.bounds.extents;
 
-					GL.Vertex((center + new Vector3(-extents.x, -extents.y, -extents.z)));
-					GL.Vertex((center + new Vector3(+extents.x, -extents.y, -extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, -extents.y, -extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, -extents.y, -extents.z))));
 
-					GL.Vertex((center + new Vector3(-extents.x, -extents.y, -extents.z)));
-					GL.Vertex((center + new Vector3(-extents.x, +extents.y, -extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, -extents.y, -extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, +extents.y, -extents.z))));
 
-					GL.Vertex((center + new Vector3(-extents.x, -extents.y, -extents.z)));
-					GL.Vertex((center + new Vector3(-extents.x, -extents.y, +extents.z)));
-
-
-					GL.Vertex((center + new Vector3(+extents.x, +extents.y, +extents.z)));
-					GL.Vertex((center + new Vector3(-extents.x, +extents.y, +extents.z)));
-
-					GL.Vertex((center + new Vector3(+extents.x, +extents.y, +extents.z)));
-					GL.Vertex((center + new Vector3(+extents.x, -extents.y, +extents.z)));
-
-					GL.Vertex((center + new Vector3(+extents.x, +extents.y, +extents.z)));
-					GL.Vertex((center + new Vector3(+extents.x, +extents.y, -extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, -extents.y, -extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, -extents.y, +extents.z))));
 
 
-					GL.Vertex((center + new Vector3(-extents.x, +extents.y, +extents.z)));
-					GL.Vertex((center + new Vector3(-extents.x, +extents.y, -extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, +extents.y, +extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, +extents.y, +extents.z))));
 
-					GL.Vertex((center + new Vector3(-extents.x, +extents.y, +extents.z)));
-					GL.Vertex((center + new Vector3(-extents.x, -extents.y, +extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, +extents.y, +extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, -extents.y, +extents.z))));
 
-
-					GL.Vertex((center + new Vector3(+extents.x, -extents.y, -extents.z)));
-					GL.Vertex((center + new Vector3(+extents.x, +extents.y, -extents.z)));
-
-					GL.Vertex((center + new Vector3(+extents.x, -extents.y, -extents.z)));
-					GL.Vertex((center + new Vector3(+extents.x, -extents.y, +extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, +extents.y, +extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, +extents.y, -extents.z))));
 
 
-					GL.Vertex((center + new Vector3(-extents.x, +extents.y, -extents.z)));
-					GL.Vertex((center + new Vector3(+extents.x, +extents.y, -extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, +extents.y, +extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, +extents.y, -extents.z))));
+
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, +extents.y, +extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, -extents.y, +extents.z))));
 
 
-					GL.Vertex((center + new Vector3(-extents.x, -extents.y, +extents.z)));
-					GL.Vertex((center + new Vector3(+extents.x, -extents.y, +extents.z)));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, -extents.y, -extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, +extents.y, -extents.z))));
 
-					GL.End();
-					GL.PopMatrix();
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, -extents.y, -extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, -extents.y, +extents.z))));
+
+
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, +extents.y, -extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, +extents.y, -extents.z))));
+
+
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(-extents.x, -extents.y, +extents.z))));
+					GL.Vertex(CT(filter.transform.TransformPoint(center + new Vector3(+extents.x, -extents.y, +extents.z))));
+
 				}
 			}
+
+			GL.End();
+			GL.PopMatrix();
 
 		}
 
@@ -112,10 +123,11 @@ namespace AudioMuffler
 			GL.Begin(GL.LINES);
 			GL.Color(color);
 			foreach (AudioSource source in audiosources) {
-				GL.Vertex(source.transform.position + 0.01f * Vector3.down);
-				GL.Vertex(source.transform.position + 0.01f * Vector3.up);
-				GL.Vertex(source.transform.position + 0.01f * Vector3.left);
-				GL.Vertex(source.transform.position + 0.01f * Vector3.right);
+				bool isInternal = InternalSpace.Instance.transform == source.transform.root;
+				GL.Vertex(CT(source.transform.position + 0.01f * Vector3.down, isInternal));
+				GL.Vertex(CT(source.transform.position + 0.01f * Vector3.up, isInternal));
+				GL.Vertex(CT(source.transform.position + 0.01f * Vector3.left, isInternal));
+				GL.Vertex(CT(source.transform.position + 0.01f * Vector3.right, isInternal));
 			}
 			GL.End();
 			GL.PopMatrix();
@@ -128,18 +140,17 @@ namespace AudioMuffler
 			GL.PushMatrix();
 			GL.Begin(GL.LINES);
 			GL.Color(color);
-			GL.Vertex(transform.position);
-			GL.Vertex(transform.TransformPoint(Vector3.right));
+			GL.Vertex((transform.position));
+			GL.Vertex((transform.TransformPoint(Vector3.right)));
 			GL.Color(color - colorOffset);
-			GL.Vertex(transform.position);
-			GL.Vertex(transform.TransformPoint(Vector3.up));
-			GL.Color(color - 2 * colorOffset);
-			GL.Vertex(transform.position);
-			GL.Vertex(transform.TransformPoint(Vector3.forward));
+			GL.Vertex((transform.position));
+			GL.Vertex((transform.TransformPoint(Vector3.up)));
+			GL.Color((color - 2 * colorOffset));
+			GL.Vertex((transform.position));
+			GL.Vertex((transform.TransformPoint(Vector3.forward)));
 			GL.End();
 			GL.PopMatrix();
 		}
 
 	}
 }
-

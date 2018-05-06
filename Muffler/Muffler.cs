@@ -54,7 +54,7 @@ namespace AudioMuffler {
 			AudioSource[] audioSources = FindObjectsOfType(typeof(AudioSource)) as AudioSource[];
 
 			cacheManager.maintainCaches(audioSources);
-			
+
 	        //Looking for a part containing the Ear:
 	        Part earPart = null;
 
@@ -115,8 +115,9 @@ namespace AudioMuffler {
 				*/
 
 				if (config.debug) {
-					writeDebug("Sound " + i + ": " + audioSource.transform.name + " " + audioSource.transform.position + " " + audioSource.bypassEffects + " " + audioSource.bypassListenerEffects + " " +
-					(audioSource.clip == null ? "null" : audioSource.clip.name) + " " + StockAudio.isAmbient(audioSource) + " " + StockAudio.isInVessel(audioSource));
+					writeDebug("Sound " + i + " clp=" + (audioSource.clip == null ? "null" : audioSource.clip.name) + ": plyng=" + audioSource.isPlaying + 
+						" trf.nm=" + audioSource.transform.name + " trf.pos=" + audioSource.transform.position + 
+						 " amb=" + StockAudio.isAmbient(audioSource) + " inves=" + StockAudio.isInVessel(audioSource));
 				}
 
 				//This "if" is here because of strange behaviour of StageManager's audio source which always has clip = null and !playing when checked
@@ -162,13 +163,13 @@ namespace AudioMuffler {
 					//so in the most cases it will be enough to test just the part's meshes instead of sequentially testing all of the vessel's meshes, thus greatly improve
 					//performance in case of a high part count:
 
-					if (CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.IVA) { //TODO remove this check when a proper way to transform coordinates between InternalModel and part's transform is found
-						if (earPart.transform.Equals(audioSource.transform) && cacheManager.vesselGeometry.isPointInPart(audioSource.transform.position, earPart)) {
+					//if (CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.IVA) { //TODO remove this check when a proper way to transform coordinates between InternalModel and part's transform is found
+						if (audioSource.transform.IsChildOf(earPart.transform) && cacheManager.vesselGeometry.isPointInPart(audioSource.transform.position, earPart)) {
 							writeDebug("Sound " + i + ":" + audioSource.name + " SAME AS EAR");
 							audioSource.outputAudioMixerGroup = null; //if audioSource is in the same part with the Ear then skipping filtering
 							continue;
 						}
-					}
+					//}
 
 					Part boundPart = cacheManager.vesselSounds.getPartFor(audioSource);
 					if (boundPart != null && !boundPart.Equals(earPart) && cacheManager.vesselGeometry.isPointInPart(audioSource.transform.position, boundPart)) {
@@ -185,6 +186,7 @@ namespace AudioMuffler {
 						if (part.Equals(boundPart)) { //if the audioSource is bound to some part, then this part is already checked earlier
 							continue;
 						}
+
 						if (cacheManager.vesselGeometry.isPointInPart(audioSource.transform.position, part)) {
 							if (part.Equals(earPart)) {
 								writeDebug("Sound " + i + ":" + audioSource.name + " SAME AS EAR");
@@ -212,7 +214,7 @@ namespace AudioMuffler {
 		}
 
 		private void writeDebug(string message) {
-			if (config.debug) {
+			if (config.debug && !Planetarium.Pause) {
 				KSPLog.print("[Audio Muffler] " + message);
 			}
 		}
@@ -243,10 +245,11 @@ namespace AudioMuffler {
 		void DebugPostRender(Camera currentCamera) {
 			//KSPLog.print("CAMERA: " + currentCamera.name);
 			if ((currentCamera.name == "InternalCamera") || (currentCamera.tag == "MainCamera")) {
-				DebugVisualizer.drawPartMeshes(Color.red - new Color(0.9f, 0.9f, 0.9f,0), false);
+				DebugVisualizer.drawPartMeshes(Color.red - new Color(0.9f, 0.9f, 0.9f,0));
 				DebugVisualizer.visualizeTransform(FlightGlobals.ActiveVessel.parts[0].transform, Color.green);
 				DebugVisualizer.visualizeTransform(FlightGlobals.ActiveVessel.parts[0].internalModel.transform, Color.blue);
 				DebugVisualizer.visualizeAudioSources(FindObjectsOfType(typeof(AudioSource)) as AudioSource[], Color.yellow);
+				DebugVisualizer.visualizeAudioSources(Array.FindAll(FindObjectsOfType(typeof(AudioSource)) as AudioSource[], a => a.clip != null && a.clip.name.Contains("Chatterer")), Color.red);
 			}
 		}
 			    
