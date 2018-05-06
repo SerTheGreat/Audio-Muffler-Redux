@@ -54,7 +54,7 @@ namespace AudioMuffler {
 			AudioSource[] audioSources = FindObjectsOfType(typeof(AudioSource)) as AudioSource[];
 
 			cacheManager.maintainCaches(audioSources);
-			
+
 	        //Looking for a part containing the Ear:
 	        Part earPart = null;
 
@@ -249,7 +249,7 @@ namespace AudioMuffler {
 				DebugVisualizer.visualizeTransform(FlightGlobals.ActiveVessel.parts[0].transform, Color.green);
 				DebugVisualizer.visualizeTransform(FlightGlobals.ActiveVessel.parts[0].internalModel.transform, Color.blue);
 				DebugVisualizer.visualizeAudioSources(FindObjectsOfType(typeof(AudioSource)) as AudioSource[], Color.yellow);
-				DebugVisualizer.visualizeAudioSources(Array.FindAll(FindObjectsOfType(typeof(AudioSource)) as AudioSource[], a => a.clip != null && a.clip.name.Contains("ShipEffects")), Color.red);
+				DebugVisualizer.visualizeAudioSources(Array.FindAll(FindObjectsOfType(typeof(AudioSource)) as AudioSource[], a => a.clip != null && a.clip.name.Contains("Chatterer")), Color.red);
 			}
 		}
 			    
