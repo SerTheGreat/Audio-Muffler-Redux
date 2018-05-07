@@ -27,8 +27,10 @@ namespace AudioMuffler
 					Part part = FlightGlobals.ActiveVessel.Parts[p];
 					if (part.internalModel && audioSource.transform.IsChildOf(part.internalModel.transform)) {
 						soundIDToPartIVA.Add(audioSource.GetInstanceID(), part);
-					} else if (audioSource.transform.IsChildOf(part.transform)) {						
+						break;
+					} else if (audioSource.transform.IsChildOf(part.transform)) {
 						soundIDToPart.Add(audioSource.GetInstanceID(), part);
+						break;
 					}
 				}
 			}
